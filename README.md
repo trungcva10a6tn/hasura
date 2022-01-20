@@ -7,3 +7,7 @@ docker-compose up
 hasura migrate apply
 hasura seed apply
 ```
+
+mở link sau ở trình duyệt
+
+http://localhost:3000/data
