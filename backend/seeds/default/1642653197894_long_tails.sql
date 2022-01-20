@@ -1,0 +1,1 @@
+INSERT INTO "hasura"."long_tails" (json_id, tail) VALUES (1, 'front'), (2, 'data'), (3, 'api');
