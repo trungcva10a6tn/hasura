@@ -1,0 +1,15 @@
+type Mutation {
+  checkTail(
+    arg1: SampleInput!
+  ): SampleOutput
+}
+
+input SampleInput {
+  tail: String!
+}
+
+type SampleOutput {
+  title: String!
+  description: String!
+}
+

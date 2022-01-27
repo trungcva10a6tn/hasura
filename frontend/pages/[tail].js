@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import gql from "graphql-tag";
 import { ApolloClient, InMemoryCache, HttpLink } from "apollo-boost";
-import { Query, ApolloProvider } from "react-apollo";
+import { Query, ApolloProvider, Mutation } from "react-apollo";
 import fileData from "./data.json";
 
 const apolloClient = new ApolloClient({
@@ -64,6 +64,47 @@ const MyQueryQuery = (props) => {
     )
 };
 
+const MY_MUTATION_MUTATION = gql`
+  mutation MyMutation {
+    checkTail(arg1: {tail: "1234"}) {
+      description
+      title
+    }
+  }
+`;
+
+const MyMutationMutation = (props) => {
+    return (
+        <Mutation
+            mutation={MY_MUTATION_MUTATION}>
+            {(MyMutation, { loading, error, data }) => {
+                if (loading) return <pre>Loading</pre>
+
+                if (error)
+                    return (
+                        <pre>
+              Error in MY_MUTATION_MUTATION
+                            {JSON.stringify(error, null, 2)}
+            </pre>
+                    );
+
+                const dataEl = data ? (
+                    <pre>{JSON.stringify(data, null, 2)}</pre>
+                ) : null;
+
+                return (
+                    <div>
+                        {dataEl}
+
+                        <button onClick={() => MyMutation()}>
+                            Run mutation: MyMutation
+                        </button>
+                    </div>
+                );
+            }}
+        </Mutation>
+    )
+};
 
 export default function MyDynamicPage({ example }) {
     const router = useRouter();
@@ -71,6 +112,7 @@ export default function MyDynamicPage({ example }) {
     return (
         <ApolloProvider client={apolloClient}>
             <MyQueryQuery  tail={tail}/>
+            <MyMutationMutation  />
         </ApolloProvider>
     )
 }

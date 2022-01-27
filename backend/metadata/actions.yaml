@@ -1,6 +1,29 @@
-actions: []
+actions:
+- name: checkTail
+  definition:
+    kind: synchronous
+    handler: http://host.docker.internal:3003
+    request_transform:
+      body: |-
+        {
+          "action": {
+            "name": "checkTail"
+          },
+          "input": {
+            "arg1": {
+              "tail": {{$body.input.arg1.tail}}
+            }
+          }
+        }
+      content_type: application/json
+      method: POST
+      query_params: {}
+      template_engine: Kriti
+      url: '{{$base_url}}/checkTail'
 custom_types:
   enums: []
-  input_objects: []
-  objects: []
+  input_objects:
+  - name: SampleInput
+  objects:
+  - name: SampleOutput
   scalars: []
