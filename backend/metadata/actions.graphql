@@ -5,7 +5,7 @@ type Mutation {
 }
 
 input SampleInput {
-  tail: String!
+  id: Int!
 }
 
 type SampleOutput {

@@ -11,7 +11,7 @@ actions:
           },
           "input": {
             "arg1": {
-              "tail": {{$body.input.arg1.tail}}
+              "id": {{$body.input.arg1.id}}
             }
           }
         }

@@ -1,118 +1,58 @@
-import { useRouter } from "next/router";
-import gql from "graphql-tag";
-import { ApolloClient, InMemoryCache, HttpLink } from "apollo-boost";
-import { Query, ApolloProvider, Mutation } from "react-apollo";
-import fileData from "./data.json";
+import { withRouter  } from "next/router";
+import React, { Component  } from 'react'
+import {checkTail, getTail} from "../service/apolloclient";
 
-const apolloClient = new ApolloClient({
-    cache: new InMemoryCache(),
-    link: new HttpLink({
-        uri: `http://localhost:8080/v1/graphql`,
-    }),
-});
-
-const MyQueryQuery = (props) => {
-    const getTail = gql`
-  query MyQuery {
-    hasura_long_tails(where: {tail: {_eq: "${props.tail}"}}) {
-      tail
-      json_id
+class MyDynamicPage extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            tail: '',
+            id: '',
+            title: '',
+            description: '',
+            error: false,
+        }
     }
-  }
-`;
-    return (
-        <Query
-            query={getTail} >
-            {({ loading, error, data }) => {
-                if (loading) return <pre>Loading</pre>
-                if (error)
-                    return (
-                        <div>
-                            <span>Error in MY_QUERY_QUERY</span>
-                            <p>{JSON.stringify(error, null, 2)}</p>
-                        </div>
-                    );
 
-                if (data) {
-                    let info = {};
-                    const { hasura_long_tails: res } = data
-                    if (res.length < 1) return (<div style={{margin: '50px'}}>Item not found</div>)
-                    for (let i = 0; i < fileData.length; i++) {
-                        const item = fileData[i];
-                        if (res[0].json_id === item.id) {
-                            info = item;
-                            break;
-                        }
-                    }
-                    if (!info.id) return (<div style={{margin: '50px'}}>Item not fo</div>)
-                    
-                    return (
-                        <div style={{margin: '50px'}}>
-                            <p>
-                                <strong>Title: </strong>
-                                <span>{info.title}</span>
-                            </p>
-                            <p>
-                                <strong>Description: </strong>
-                                <span>{info.description}</span>
-                            </p>
+    async componentDidMount() {
+        setTimeout(async() => {
+            const {tail} = this.props.router.query;
+            const [data] = await getTail(this.props.router.query.tail);
+            if (!data) {
+                this.setState({
+                    error: true,
+                })
+                return;
+            }
+            const detail = await checkTail(data.json_id);
+            this.setState({
+                tail: tail,
+                id: data.json_id,
+                title: detail.title,
+                description: detail.description,
+            });
+        }, 1000);
+    }
+
+    render() {
+        return (
+            <div style={{margin: '20px 40px'}}>
+                {this.state.error ?
+                    (
+                        <h3>Data not found</h3>
+                    )
+                    :(
+                        <div>
+                            <h3> title: {this.state.title}</h3>
+                            <h3> description: {this.state.tail}</h3>
                         </div>
+
                     )
                 }
-            }}
-        </Query>
-    )
-};
 
-const MY_MUTATION_MUTATION = gql`
-  mutation MyMutation {
-    checkTail(arg1: {tail: "1234"}) {
-      description
-      title
+            </div>
+        )
     }
-  }
-`;
-
-const MyMutationMutation = (props) => {
-    return (
-        <Mutation
-            mutation={MY_MUTATION_MUTATION}>
-            {(MyMutation, { loading, error, data }) => {
-                if (loading) return <pre>Loading</pre>
-
-                if (error)
-                    return (
-                        <pre>
-              Error in MY_MUTATION_MUTATION
-                            {JSON.stringify(error, null, 2)}
-            </pre>
-                    );
-
-                const dataEl = data ? (
-                    <pre>{JSON.stringify(data, null, 2)}</pre>
-                ) : null;
-
-                return (
-                    <div>
-                        {dataEl}
-
-                        <button onClick={() => MyMutation()}>
-                            Run mutation: MyMutation
-                        </button>
-                    </div>
-                );
-            }}
-        </Mutation>
-    )
-};
-
-export default function MyDynamicPage({ example }) {
-    const router = useRouter();
-    const {query: { tail }} = router;
-    return (
-        <ApolloProvider client={apolloClient}>
-            <MyQueryQuery  tail={tail}/>
-            <MyMutationMutation  />
-        </ApolloProvider>
-    )
 }
+
+export default withRouter(MyDynamicPage);
