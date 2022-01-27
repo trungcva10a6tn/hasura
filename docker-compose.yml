@@ -1,6 +1,7 @@
 version: "3"
 services:
   backend:
+    container_name: server-hasura
     build:
       context: ./backend
     depends_on:
@@ -12,6 +13,7 @@ services:
     volumes:
       - ./backend:/backend-app
   frontend:
+    container_name: frontend-nextjs
     build:
       context: ./frontend
     command: yarn dev
@@ -24,6 +26,7 @@ services:
     ports:
       - "3000:3000"
   api:
+    container_name: server-express
     build:
       context: ./api
     command: npm start
@@ -33,6 +36,7 @@ services:
     ports:
       - "3003:3003"
   db:
+    container_name: postgres-DB
     image: postgres:11.3-alpine
     volumes:
       - db_data:/var/lib/postgresql/data
