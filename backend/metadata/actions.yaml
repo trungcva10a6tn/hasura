@@ -1,7 +1,7 @@
 actions:
 - name: checkTail
   definition:
-    kind: synchronous
+    kind: ""
     handler: http://host.docker.internal:3003
     request_transform:
       body: |-

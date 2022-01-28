@@ -11,8 +11,8 @@ const apolloClient = new ApolloClient({
 
 const getTail = async (tail) => {
     const getTail = gql`
-          query MyQuery {
-            hasura_long_tails(where: {tail: {_eq: "${tail}"}}) {
+          query MyQuery ($_eq: bpchar = "") {
+            hasura_long_tails(where: {tail: {_eq: $_eq}}) {
               tail
               json_id
             }
@@ -21,23 +21,27 @@ const getTail = async (tail) => {
 
     const {data} = await apolloClient.query({
         query: getTail,
+        variables: {
+            _eq: tail
+        }
     });
     return data.hasura_long_tails;
 }
 const checkTail = async (id) => {
     const checkTail = gql`
-           mutation MyMutation {
-            checkTail(arg1: {id: ${id}}) {
-              description
-              title
-            }
-          }
-        `;
-
-    const {data} = await apolloClient.mutate({
-        mutation: checkTail,
+     query checkTail($id: Int = "$id") {
+        checkTail(arg1: {id: $id}) {
+          description
+          title
+        }
+      }
+    `;
+    const {data} = await apolloClient.query({
+        query: checkTail,
+        variables: {
+            id: id
+        }
     });
-    console.log('data', data);
     return data.checkTail;
 }
 export { apolloClient, getTail, checkTail };

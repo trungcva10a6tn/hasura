@@ -1,4 +1,4 @@
-type Mutation {
+type Query {
   checkTail(
     arg1: SampleInput!
   ): SampleOutput
